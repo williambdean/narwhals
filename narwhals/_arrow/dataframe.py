@@ -40,12 +40,14 @@ if TYPE_CHECKING:
     import polars as pl
     from typing_extensions import Self
     from typing_extensions import TypeAlias
+    from typing_extensions import Unpack
 
     from narwhals._arrow.expr import ArrowExpr
     from narwhals._arrow.group_by import ArrowGroupBy
     from narwhals._arrow.namespace import ArrowNamespace
     from narwhals._arrow.series import ArrowSeries
     from narwhals._arrow.typing import ArrowChunkedArray
+    from narwhals._arrow.typing import ArrowTableToPandasKwds
     from narwhals._arrow.typing import Indices  # type: ignore[attr-defined]
     from narwhals._arrow.typing import Mask  # type: ignore[attr-defined]
     from narwhals._arrow.typing import Order  # type: ignore[attr-defined]
@@ -501,8 +503,8 @@ class ArrowDataFrame(CompliantDataFrame, CompliantLazyFrame):
             validate_column_names=False,
         )
 
-    def to_pandas(self: Self) -> pd.DataFrame:
-        return self._native_frame.to_pandas()
+    def to_pandas(self: Self, **kwds: Unpack[ArrowTableToPandasKwds]) -> pd.DataFrame:
+        return self._native_frame.to_pandas(**kwds)
 
     def to_polars(self: Self) -> pl.DataFrame:
         import polars as pl  # ignore-banned-import

@@ -48,7 +48,9 @@ if TYPE_CHECKING:
     from typing_extensions import Concatenate
     from typing_extensions import ParamSpec
     from typing_extensions import Self
+    from typing_extensions import Unpack
 
+    from narwhals._arrow.typing import ArrowTableToPandasKwds
     from narwhals.group_by import GroupBy
     from narwhals.group_by import LazyGroupBy
     from narwhals.series import Series
@@ -653,7 +655,13 @@ class DataFrame(BaseFrame[DataFrameT]):
         """
         return self._compliant_frame._native_frame  # type: ignore[no-any-return]
 
-    def to_pandas(self: Self) -> pd.DataFrame:
+    @overload
+    def to_pandas(
+        self: DataFrame[pa.Table], **kwds: Unpack[ArrowTableToPandasKwds]
+    ) -> pd.DataFrame: ...
+    @overload
+    def to_pandas(self: Self, **kwds: Any) -> pd.DataFrame: ...
+    def to_pandas(self: Self, **kwds: Any) -> pd.DataFrame:
         """Convert this DataFrame to a pandas DataFrame.
 
         Returns:
@@ -697,7 +705,8 @@ class DataFrame(BaseFrame[DataFrameT]):
             1    2  7.0   b
             2    3  8.0   c
         """
-        return self._compliant_frame.to_pandas()  # type: ignore[no-any-return]
+        # TODO @dhirschfeld: Handle mismatched keywords in each backend
+        return self._compliant_frame.to_pandas(**kwds)  # type: ignore[no-any-return]
 
     def to_polars(self: Self) -> pl.DataFrame:
         """Convert this DataFrame to a polars DataFrame.
